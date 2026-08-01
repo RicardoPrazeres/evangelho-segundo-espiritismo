@@ -1,8 +1,12 @@
+import json
+import re
 import sys
-sys.path.insert(0, '/Users/ricardo/Library/Python/3.9/lib/python/site-packages')
-import pypdf, re, json
+from pathlib import Path
 
-pdf_path = '/Users/ricardo/Desktop/evangelho-guillon.pdf'
+import pypdf
+
+project_dir = Path(__file__).resolve().parent
+pdf_path = Path(sys.argv[1]) if len(sys.argv) > 1 else project_dir / 'evangelho-guillon.pdf'
 reader = pypdf.PdfReader(pdf_path)
 
 chapter_configs = [
@@ -160,9 +164,9 @@ book_data = {
     'chapters': out_chapters
 }
 
-out_path = '/Users/ricardo/Desktop/evangelho-segundo-espiritismo/js/book-data.js'
+out_path = project_dir / 'js' / 'book-data.js'
 with open(out_path, 'w', encoding='utf-8') as f:
-    f.write('const BOOK_DATA = ')
+    f.write('window.BOOK_DATA = ')
     json.dump(book_data, f, ensure_ascii=False, indent=2)
     f.write(';\n')
 

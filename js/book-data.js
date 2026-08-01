@@ -1,4 +1,4 @@
-const BOOK_DATA = {
+window.BOOK_DATA = {
   "meta": {
     "title": "O Evangelho Segundo o Espiritismo",
     "author": "Allan Kardec",

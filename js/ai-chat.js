@@ -201,13 +201,20 @@ const AIChat = {
 
     BOOK_DATA.chapters.forEach(chap => {
       let chapScore = 0;
-      const chapTitleNorm = (chap.title + " " + chap.subtitle + " " + chap.summary)
+      const normalize = (text) => (text || '')
         .toLowerCase()
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "");
+      const titleNorm = normalize(chap.title);
+      const subtitleNorm = normalize(chap.subtitle);
+      const summaryNorm = normalize(chap.summary);
+
+      if (titleNorm.includes(normalizedQuery)) chapScore += 100;
 
       words.forEach(w => {
-        if (chapTitleNorm.includes(w)) chapScore += 3;
+        if (titleNorm.includes(w)) chapScore += 50;
+        if (subtitleNorm.includes(w)) chapScore += 15;
+        if (summaryNorm.includes(w)) chapScore += 5;
       });
 
       chap.sections.forEach(sec => {
@@ -219,7 +226,7 @@ const AIChat = {
 
         words.forEach(w => {
           const count = (secText.split(w).length - 1);
-          secScore += count * 2;
+          secScore += Math.min(count, 5) * 2;
         });
 
         if (secScore > 0) {
@@ -268,11 +275,8 @@ const AIChat = {
 
     const contextText = matches.map(m => `
 [${m.chapterTitle} - ${m.sectionTitle}]
-${m.paragraphs.join("
-")}
-    `).join("
-
-");
+${m.paragraphs.join("\n")}
+    `).join("\n\n");
 
     const prompt = `
 Você é a IA oficial de estudos do livro "O Evangelho Segundo o Espiritismo" de Allan Kardec (tradução Guillon Ribeiro / FEB).
@@ -310,8 +314,7 @@ Instruções para sua resposta:
     const data = await response.json();
     const candidates = data.candidates;
     if (candidates && candidates.length > 0 && candidates[0].content) {
-      return candidates[0].content.parts[0].text.replace(/
-/g, '<br>');
+      return candidates[0].content.parts[0].text.replace(/\n/g, '<br>');
     } else {
       throw new Error('Sem resposta válida da API.');
     }
