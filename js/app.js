@@ -190,11 +190,18 @@ const App = {
 
     const badgeLabel = chap.number > 0 ? (Number.isInteger(chap.number) ? `Capítulo ${chap.number}` : 'Introdução') : 'Abertura';
 
+    const formatParagraph = (p) => {
+      if (/^(\d+|[I|V|X|L|C|D|M]+)\.\s+/.test(p)) {
+        return p.replace(/^(\d+|[I|V|X|L|C|D|M]+)\.\s+/, '<strong class="item-number">$1.</strong> ');
+      }
+      return p;
+    };
+
     let sectionsHtml = chap.sections.map(sec => `
       <div class="reader-section">
         <h3 class="section-title">${sec.title}</h3>
         ${sec.subtitle ? `<h4 style="color:var(--text-secondary); font-size:1rem; margin-bottom:1rem; font-style:italic;">${sec.subtitle}</h4>` : ''}
-        ${sec.content.map(p => `<p>${p}</p>`).join('')}
+        ${sec.content.map(p => `<p>${formatParagraph(p)}</p>`).join('')}
       </div>
     `).join('');
 
